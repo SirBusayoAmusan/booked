@@ -1,9 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
-  cacheComponents: true,
-  partialPrefetching: true,
+  // Every app screen is per-user and reads cookies, so the classic dynamic
+  // rendering model is simpler here than Cache Components (see DECISIONS.md).
   turbopack: {
     rules: {
       "*.css": {
@@ -12,6 +11,7 @@ const nextConfig: NextConfig = {
       },
     },
   },
+  serverExternalPackages: ["web-push", "qrcode"],
 };
 
 export default nextConfig;
