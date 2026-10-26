@@ -68,3 +68,8 @@ export function smsHref(phone: string, body?: string) {
 export function whatsappHref(phone: string, text?: string) {
   return "https://wa.me/" + phone.replace(/[^\d]/g, "") + (text ? "?text=" + encodeURIComponent(text) : "");
 }
+
+// Current time in ms. Server components read the clock once per request.
+export function nowMs() {
+  return Date.now();
+}

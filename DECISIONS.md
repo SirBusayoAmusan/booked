@@ -54,3 +54,19 @@ Every assumption and tradeoff made during the build, newest at the bottom of eac
   - Customer-photo findings are skipped when the owner has confirmed permission for their proof assets.
   - Posts with high findings can't be marked ready or posted. Medium findings show but don't block.
 - **Live lint while editing** calls `POST /api/safety/check` without saving.
+
+## Milestones 5 and 6: Enquiry capture, replies, Review Kit
+
+- **Tracked links** are `/r/{tracking_code}`. They log a click (salted, daily-rotating hash of IP + user agent; no raw IPs), then redirect to `/b/{slug}?src={code}`. The enquiry form sends `src`, and a matching post makes the enquiry `tracked_link` with `post_id`.
+- **The public enquiry form** has a consent checkbox (required), privacy notice, a honeypot field, and Postgres rate limits: 10 per hour per IP hash and 60 per hour per business.
+- **Quick Log** sources: picking a code word or a recent post sets `source = code_word` with `post_id`; anything else is `manual` with the "how did they find you" answer in `source_note`. Logged enquiries start as Contacted by default, since the owner is usually already talking to them.
+- **`enquiries.value_usd` holds the job value in the business's own currency** (USD, GBP or AUD), despite the column name from the spec. The CSV header names the currency.
+- **Status timestamps**: moving out of New sets `first_contacted_at`; Booked sets `booked_at`; Completed sets `completed_at`. The ROI card counts enquiries by `booked_at` this month.
+- **Contacting from the inbox** (call, text, WhatsApp, email, copying a Reply Helper draft) marks a New enquiry as Contacted, which stops the overdue reminder.
+- **Overdue reminder** is a cron (`/api/cron/overdue-enquiries`, every 30 minutes in `vercel.json`) that sends one reminder per enquiry once it's older than the owner's limit (default 2 hours): web push if subscribed, otherwise email. Vercel Hobby only allows daily crons, so this needs Vercel Pro (or an external scheduler hitting the route with `CRON_SECRET`).
+- **Reply Helper** rejects drafts containing any number that isn't in the fact sheet, saved replies or the customer's own message, then retries once. Copy is disabled while `[placeholders]` remain. Saving an edited draft to the library also stores a `reply` style example.
+- **Review requests** count against the monthly limit whether drafted by AI or from a template. Templates work without AI (and when generation is paused). AI drafts are checked against the review-incentive and gating rule and must contain the review link.
+- **Review link**: Google first, else the first other platform the owner added (Facebook recommendations, Yelp, Trustpilot, Checkatrade, ProductReview, hipages, depending on country). No in-house feedback form, so there's no way to filter unhappy customers away from public reviews.
+- **QR codes** are generated server-side as SVG and PNG with the `qrcode` package. The spec's `/api/reviews/qr/[businessId].svg` is implemented as `/api/reviews/qr/[file]` because a Next.js dynamic segment can't carry a fixed suffix; `{businessId}.svg` and `{businessId}.png` both work. QR routes require the owner to be signed in.
+- **Printables**: a poster and a sheet of 8 business cards, printed from the browser with print CSS hiding the app chrome.
+- **Review prompts on Today** show jobs marked completed in the last 3 days with no review request yet.
