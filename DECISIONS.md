@@ -70,3 +70,34 @@ Every assumption and tradeoff made during the build, newest at the bottom of eac
 - **QR codes** are generated server-side as SVG and PNG with the `qrcode` package. The spec's `/api/reviews/qr/[businessId].svg` is implemented as `/api/reviews/qr/[file]` because a Next.js dynamic segment can't carry a fixed suffix; `{businessId}.svg` and `{businessId}.png` both work. QR routes require the owner to be signed in.
 - **Printables**: a poster and a sheet of 8 business cards, printed from the browser with print CSS hiding the app chrome.
 - **Review prompts on Today** show jobs marked completed in the last 3 days with no review request yet.
+
+## Milestone 7: Billing with Whop
+
+- **Read the current Whop docs before writing billing code** (docs.whop.com, October 2026). Whop now calls plans "variants" but IDs still start with `plan_`, and the SDK and webhook names still say `plan`.
+- **Pinned API version**: `WHOP_API_VERSION_DATE` (default `2026-10-24`, the newest version in the docs at build time), passed to the SDK's `apiVersionDate`. Sandbox vs production is `WHOP_ENVIRONMENT` (`sandbox` by default) using the SDK's `WhopEnvironment`.
+- **Extra env vars**: `WHOP_ENVIRONMENT`, and optional per-currency plan IDs (`WHOP_PLAN_ID_SOLO_GBP`, `WHOP_PLAN_ID_GROWTH_AUD`, …) that fall back to `WHOP_PLAN_ID_SOLO` / `WHOP_PLAN_ID_GROWTH`. `WHOP_ACCOUNT_ID` and `WHOP_PRODUCT_ID` are kept in `.env.example` for setup but the code doesn't need them, because checkout uses existing plan IDs.
+- **The 7-day trial is configured on the Whop plans** (Whop sets trials on recurring plans/checkout links, `trial_period_days`), not in code.
+- **Checkout** creates a Whop checkout configuration for the plan with `metadata.app_user_id` (Whop copies checkout metadata onto the membership and payments) and sends the owner to its `purchase_url`. That is how webhooks are linked to Booked accounts. Owners only enter card details on Whop.
+- **Webhooks** (`POST /api/billing/webhook`) read the raw body as text and verify it with the SDK's `unwrapWebhook` (Standard Webhooks signature plus a 5-minute timestamp tolerance) before parsing. Unsigned or tampered requests get 401.
+- **Idempotency**: the `webhook-id` header is inserted into `billing_events` (unique). A duplicate returns 200 without reprocessing. If processing fails, the row is removed so Whop's retry is processed.
+- **State comes from the API, not the payload.** For `membership.*` and `payment.failed`/`payment.succeeded`, the handler re-reads the membership with `memberships.retrieve`, because Whop says deliveries can arrive out of order and webhook payloads never include the affiliate. Subscribe the endpoint to `membership.activated`, `membership.updated`, `membership.trial_ending_soon`, `payment.failed` and `payment.succeeded` (`membership.updated` also covers deactivation and cancel-at-period-end).
+- **Status mapping**: `trialing` to trialing; `active` and `completed` to active; `past_due` and `unresolved` to past_due; `canceled` and `expired` to canceled; any state with `most_recent_action = paused_at` to paused. `past_due_since` is set the first time a membership goes past due, for the 3-day grace period.
+- **Trials get the Growth feature set** (`TRIAL_PLAN` in config) so owners can judge the full product; after the trial they get the plan they chose.
+- **Pause** calls Whop's pause (stops payment collection). Booked treats paused accounts as read-only, per the spec. **Cancel** is always at period end, so owners keep what they paid for. Undo cancel is supported.
+- **Manage billing** sends owners to the membership's `manage_url` on Whop (card, receipts, invoices, cancel).
+- **Affiliates**: a `?a=code` on any page sets a 30-day `booked_aff` cookie, passed as `affiliate_code` at checkout. When the API returns the affiliate on the membership, its user ID is stored in `profiles.referred_by`. Commission rates are set in the Whop dashboard, not in code.
+- **`BILLING_PROVIDER=stripe`** selects a placeholder provider that fails clearly until a Stripe implementation is written. Product code only uses `getBillingProvider()`.
+- **Account deletion** cancels the subscription at period end first, then deletes the auth user (all data cascades). If the cancel fails, deletion stops and the owner is asked to cancel from Manage billing, so nobody is charged for a deleted account.
+- **Refund promise in the UI**: "ask within 14 days of the first charge, no questions asked". Refunds are issued manually from the Whop dashboard; this needs a matching line in the terms (done) and a person to action requests.
+
+## Milestone 8: Weekly loop and ROI
+
+- **Weekly metrics are computed live** from posts, clicks, enquiries, bookings and review requests for a Monday-start week, and the review page always shows fresh numbers. The stored `weekly_reviews` row holds the written summary, top posts and recommendations.
+- **Solo plan gets a plain, numbers-only summary**; Growth (and trials) get the AI review with up to 3 recommendations. The AI review is rejected and retried if it mentions a number that isn't in the input or a post that isn't in the data. Under 5 enquiries across the 4 weeks, it's told to say there isn't enough data yet.
+- **Top posts are ranked by tracked enquiries, then tracked clicks**, including clicks and enquiries this week on posts from earlier weeks.
+- **ROI** is logged revenue (job values on enquiries booked in the period) vs the plan price in the business's currency. The UI says "logged" and explains it isn't every job.
+- **Monday digest** runs hourly and sends between 7:00 and 11:59 on Monday in each owner's timezone, once per week (`weekly_reviews.email_sent_at`). It builds last week's review first if needed. It's skipped for owners who turned it off, and for paused or canceled accounts.
+- **Post-day push** (`/api/cron/post-reminders`, hourly) is an extra cron for the spec's optional "push at the owner's chosen time on days with a post due". Once-per-day and once-per-month guards reuse the Postgres rate limiter.
+- **Month-end reminder** runs from the 25th (local time, after 9:00) if next month has no calendar, once per month. Push first, email if the owner has no push subscription.
+- **Cron schedules need Vercel Pro** (hourly and half-hourly). On Hobby, call the routes from any scheduler with `Authorization: Bearer $CRON_SECRET`. The digest stops after about 4 minutes and picks up the rest next hour; at larger scale this should move to a queue.
+- **Emails go through Resend**. Without `RESEND_API_KEY` they're logged and skipped, so local development works.

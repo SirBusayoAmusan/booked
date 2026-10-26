@@ -7,7 +7,15 @@ const PROTECTED = ["/business", "/onboarding", "/settings", "/admin"];
 // signed-out visitors. Real authorisation happens in pages, routes and RLS.
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return response;
+  // Remember an affiliate code (?a=code) for 30 days so checkout can credit it.
+  const aff = request.nextUrl.searchParams.get("a");
+  const withAffiliate = (res: NextResponse) => {
+    if (aff && /^[A-Za-z0-9_-]{2,40}$/.test(aff)) {
+      res.cookies.set("booked_aff", aff, { maxAge: 60 * 60 * 24 * 30, httpOnly: true, sameSite: "lax", secure: true, path: "/" });
+    }
+    return res;
+  };
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return withAffiliate(response);
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -37,7 +45,7 @@ export async function proxy(request: NextRequest) {
     url.searchParams.set("next", path);
     return NextResponse.redirect(url);
   }
-  return response;
+  return withAffiliate(response);
 }
 
 export const config = {
