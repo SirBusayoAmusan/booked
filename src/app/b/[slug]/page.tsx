@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MessageSquare, Phone } from "lucide-react";
 import { getPublicBusiness } from "@/lib/public-business";
@@ -118,10 +119,13 @@ export default async function PublicBusinessPage(props: PageProps<"/b/[slug]">) 
 
       <footer className="mt-10 text-center text-xs text-muted-foreground">
         Page made with{" "}
-        <a href="/" className="underline">
+        <Link href="/" className="underline">
           Booked
-        </a>
-        . <a href="/privacy" className="underline">Privacy</a>
+        </Link>
+        .{" "}
+        <Link href="/privacy" className="underline">
+          Privacy
+        </Link>
       </footer>
     </main>
   );

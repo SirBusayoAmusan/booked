@@ -1,0 +1,193 @@
+{
+  "version": "1.0.0",
+  "last_verified": "2026-10-26",
+  "disclaimer": "This check is a lint based on general advertising principles, not legal advice. It doesn't cover every state, country or platform policy.",
+  "instagram_max_hashtags": 10,
+  "restricted_hashtags": [
+    "#followforfollow",
+    "#f4f",
+    "#like4like",
+    "#l4l",
+    "#followback",
+    "#likeforlike",
+    "#tagsforlikes",
+    "#instalike",
+    "#beautyblogger",
+    "#alone",
+    "#adulting",
+    "#pushups",
+    "#snapchat",
+    "#kansas"
+  ],
+  "rules": [
+    {
+      "id": "guaranteed_results",
+      "severity": "high",
+      "patterns": [
+        "\\bguarantee(d|s)?\\b",
+        "100% results",
+        "\\brisk[- ]free\\b",
+        "never fails"
+      ],
+      "message": "Don't promise guaranteed results. Describe what you do instead."
+    },
+    {
+      "id": "fake_urgency",
+      "severity": "medium",
+      "patterns": [
+        "only \\d+ (spots?|slots?|places?|appointments?) left",
+        "last chance",
+        "offer ends (tonight|today|soon)",
+        "hurry,? (before|while)",
+        "won'?t last"
+      ],
+      "confirmable": true,
+      "message": "Urgency is only OK if it's true. Confirm it's real or remove it."
+    },
+    {
+      "id": "personal_attributes",
+      "severity": "high",
+      "patterns": [
+        "\\b(are you|you'?re|feeling) (struggling with |suffering from )?(depressed|overweight|obese|broke|in debt|diabetic|anxious|lonely|single and)\\b",
+        "\\b(know|see) you'?re (gay|lesbian|christian|muslim|jewish|hindu|black|latino|pregnant|disabled)\\b",
+        "\\byour (diagnosis|disability|religion|ethnicity|sexual orientation|credit score|debt)\\b",
+        "\\b(struggling|suffering) with (debt|money|your weight|anxiety|depression|acne|hair loss)\\b"
+      ],
+      "message": "Don't imply you know personal things about the reader, such as health, money, race, religion or sexuality."
+    },
+    {
+      "id": "before_after_claims",
+      "severity": "medium",
+      "patterns": [
+        "before (and|&|/) after",
+        "lost \\d+ ?(kg|kgs|lbs|pounds|stone)",
+        "\\b(dropped|shed) \\d+ ?(kg|lbs|pounds|dress sizes?)"
+      ],
+      "message": "Before/after content must be real, typical and permissioned. Don't edit photos to exaggerate."
+    },
+    {
+      "id": "medical_or_regulated_claims",
+      "severity": "high",
+      "patterns": [
+        "\\bcures?\\b",
+        "\\bcured\\b",
+        "\\bheals?\\b",
+        "\\bdiagnos(e|es|is|ed)\\b",
+        "\\btreats? (acne|eczema|psoriasis|anxiety|depression|pain|hair loss|injur(y|ies))\\b",
+        "clinically proven",
+        "medical[- ]grade",
+        "doctor recommended",
+        "\\bpain[- ]free\\b"
+      ],
+      "message": "Medical or health claims need proof and may need a licence. Remove them unless you're qualified and they're confirmed."
+    },
+    {
+      "id": "engagement_bait",
+      "severity": "medium",
+      "patterns": [
+        "like and share to win",
+        "like (&|and) share",
+        "tag \\d+ friends?",
+        "tag a friend (to|and) win",
+        "comment yes to",
+        "share this post to (win|enter)",
+        "comment \\w+ below to (win|get)"
+      ],
+      "message": "Platforms push down posts that ask for likes, shares or tags to win. Ask a real question instead."
+    },
+    {
+      "id": "fabricated_proof",
+      "severity": "high",
+      "message": "This looks like a review, statistic, customer name or award that isn't in your fact sheet. Use only real, permissioned proof."
+    },
+    {
+      "id": "unconfirmed_price_or_offer",
+      "severity": "high",
+      "confirmable": true,
+      "message": "Prices and offers must come from your fact sheet and be confirmed by you."
+    },
+    {
+      "id": "unfilled_placeholder",
+      "severity": "high",
+      "message": "Fill in the [placeholder] before posting."
+    },
+    {
+      "id": "customer_photo_permission",
+      "severity": "medium",
+      "patterns": [
+        "customer'?s? (photo|pic|picture|selfie|video|face)",
+        "client'?s? (photo|pic|picture|selfie|video|face)",
+        "repost (a|their|the|your) (customer|client)",
+        "photo of (a|your|the) (customer|client)",
+        "tag (the|your) (customer|client)"
+      ],
+      "message": "Only use a customer's photo or face with their permission."
+    },
+    {
+      "id": "hashtag_spam",
+      "severity": "medium",
+      "message": "Use 10 or fewer relevant hashtags on Instagram and avoid restricted tags."
+    },
+    {
+      "id": "music_and_image_rights",
+      "severity": "medium",
+      "patterns": [
+        "trending (audio|sound|song|music)",
+        "popular (song|track)",
+        "\\bstock (photo|image|video|footage|picture)s?\\b",
+        "(song|track|music) by [A-Z]",
+        "copyrighted"
+      ],
+      "message": "Use the platform's licensed audio library and your own photos, not stock images or copied music."
+    },
+    {
+      "id": "review_incentive_or_gating",
+      "severity": "high",
+      "patterns": [
+        "free .{0,30} for (a|your|an honest)? ?review",
+        "discount .{0,30} review",
+        "review .{0,30} (for|get) (a )?(discount|\\d+% off|free)",
+        "only if you.{0,30} 5[- ]?star",
+        "five[- ]star",
+        "5[- ]star review",
+        "leave (us )?(a )?5 stars?",
+        "if you (were|are) (happy|satisfied).{0,40}(review|google)",
+        "if you (weren'?t|were not|are not|aren'?t) happy.{0,40}(contact|tell|message) (me|us) (first|instead)"
+      ],
+      "message": "Review requests must not offer rewards, ask for a star rating, or only go to happy customers.",
+      "scope": "review_context"
+    },
+    {
+      "id": "endorsement_and_testimonial_disclosure",
+      "severity": "medium",
+      "patterns": [
+        "\\btestimonial\\b",
+        "\\bgifted\\b",
+        "\\bsponsored\\b",
+        "\\bin partnership with\\b",
+        "\\bour (customer|client) (said|says|told)\\b",
+        "\\b(customer|client) review\\b"
+      ],
+      "message": "Customer quotes, reviews and gifted or paid endorsements must be real, permissioned and disclosed where required (FTC in the US, ASA/CAP in the UK, ACL in Australia)."
+    },
+    {
+      "id": "regional_claims",
+      "severity": "high",
+      "patterns": [
+        "\\blicen[cs]ed\\b",
+        "\\bcertified\\b",
+        "\\b(fully )?insured\\b",
+        "\\bbonded\\b",
+        "\\bregistered\\b",
+        "\\baccredited\\b",
+        "\\bqualified\\b"
+      ],
+      "message": "Licence, insurance and registration claims must match details you've added. Rules differ by country and state."
+    },
+    {
+      "id": "owner_banned_words",
+      "severity": "high",
+      "message": "This uses a word you asked Booked never to use."
+    }
+  ]
+}

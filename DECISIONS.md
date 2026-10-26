@@ -33,3 +33,24 @@ Every assumption and tradeoff made during the build, newest at the bottom of eac
 - **Public pages default to `noindex`**. Unpublished pages are visible only to the signed-in owner as a preview.
 - **Book now goes through `/r/book/[slug]`**, which logs a `booking_link` click and adds `utm_source=booked` and `utm_campaign=<tracking code>` to the owner's booking link. Booked doesn't claim to see bookings made there.
 - **Click logging skips link-preview bots** (Facebook, WhatsApp, Slack and similar) so tracked counts aren't inflated by previews.
+
+## Milestones 3 and 4: Calendar, posts, Shoot Day, safety gate
+
+- **Calendars are generated one week per request.** The browser calls `POST /api/ai/calendar` until it reports `done`, with a progress bar. Each request stays well under the 60-second serverless limit, and a failed week can be resumed without losing finished weeks (`calendars.generation_state`).
+- **Weeks are Monday-start and overlap the month.** Weeks already over are skipped, so "rest of this month" plans only what's left. Owners can also plan next month.
+- **Cadence comes from weekly hours**: 3 primary posts a week up to 1 hour, 4 above that, plus 1 Google post when allowed. Shoot Day is capped at half the weekly budget, between 15 and 40 minutes. The model's plan is rejected (and retried once) if it breaks the budget, uses a platform the owner can't use, plans face-on-camera shots for an owner who said no, has no no-filming fallback, or dates posts outside the week.
+- **Allowed platforms come from the presence assessment**: no Facebook posts without a page, no Google posts without a profile (and only on plans with the Google Business Profile pack; trials get it), WhatsApp status only with a WhatsApp number. Instagram is the fallback when nothing else applies.
+- **Code words are only assigned when the owner has offers enabled**, normalised to capitals, and made unique per business by adding a number (also enforced by a unique index).
+- **Regenerating a week replaces only unposted posts** from today onward. Regenerating a post keeps its tracking code so links already shared still work. Both count against the monthly regeneration limit.
+- **The previous calendar for the same month is archived** only when the new one finishes, so owners always have a working plan.
+- **Last month's weekly review** (summary and recommendations) is passed into the next calendar as context.
+- **Edit-learning**: every saved caption edit is stored in `style_examples` on every plan. The five most recent are fed into prompts on plans with voice learning (Growth, and the trial).
+- **Safety gate**: a deterministic engine (`src/lib/safety/safety.ts`) reading `rules.json`. Admins can publish a new rules version from the admin screen into `safety_rules_meta`; the newest valid version wins, without a deploy.
+  - Extra rules beyond the spec: `unfilled_placeholder` (a `[placeholder]` left in copy is high severity) and `owner_banned_words` (high).
+  - **Every price and offer needs owner confirmation**, even ones in the fact sheet, because prices go stale. Prices not in the fact sheet can't be confirmed; they must be edited. Each `needs_owner_confirmation` item from the AI is also a confirm step. Confirmations are stored as `rule_id:matched text` in `posts.confirmed_items`.
+  - Fake urgency can be confirmed as real by the owner, as the spec says.
+  - `review_incentive_or_gating` applies to review requests and to any post that mentions reviews, so "five-star finish" in an ordinary post isn't flagged.
+  - Fabricated proof is detected with heuristics (quotes, counts of customers or reviews, ratings, percentages, years of experience, awards, named customers) checked against the fact sheet and permissioned proof. The optional AI review pass for fabricated proof is not wired in yet; the deterministic check runs on every generation and edit.
+  - Customer-photo findings are skipped when the owner has confirmed permission for their proof assets.
+  - Posts with high findings can't be marked ready or posted. Medium findings show but don't block.
+- **Live lint while editing** calls `POST /api/safety/check` without saving.
