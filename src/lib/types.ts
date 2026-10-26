@@ -96,7 +96,7 @@ export type Business = {
   booking_tool: "square" | "jobber" | "booksy" | "fresha" | "calendly" | "other" | "none";
   external_booking_url: string | null;
   presence: Presence;
-  setup_checklist_state: Record<string, "done" | "todo" | "hidden">;
+  setup_checklist_state: SetupChecklistState;
   onboarding_answers: Record<string, unknown>;
   onboarding_step: number;
   onboarding_completed_at: string | null;
@@ -220,4 +220,10 @@ export type WeeklyReview = {
   summary: string | null;
   next_week_focus: string | null;
   email_sent_at: string | null;
+};
+
+export type ChecklistStatus = "done" | "todo" | "hidden";
+export type SetupChecklistState = {
+  status?: Record<string, ChecklistStatus>;
+  guidance?: { id: string; title: string; why_it_matters: string; time_estimate_minutes: number; depends_on: string | null }[] | null;
 };

@@ -139,3 +139,24 @@ export function nextChecklistItems(
     return true;
   }).slice(0, limit);
 }
+
+// Items for the Today card: next open items, using AI-written guidance text
+// when it exists, and resolving links for this business.
+export function getFoundItemsForToday(
+  businessId: string,
+  checklist: { status?: Record<string, string>; guidance?: { id: string; why_it_matters: string; time_estimate_minutes: number }[] | null },
+  trade: string | null,
+) {
+  const guidance = new Map((checklist.guidance ?? []).map((g) => [g.id, g]));
+  return nextChecklistItems(checklist.status ?? {}, { trade, limit: 3 }).map((i) => {
+    const g = guidance.get(i.id);
+    return {
+      id: i.id,
+      title: i.title,
+      why_it_matters: g?.why_it_matters || i.why_it_matters,
+      time_estimate_minutes: i.time_estimate_minutes,
+      notes: i.notes,
+      href: i.href?.(businessId),
+    };
+  });
+}
