@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -96,9 +97,9 @@ export function GenerateCalendar({
       {canGenerate ? (
         <Button onClick={() => run(null)}>Build my calendar</Button>
       ) : (
-        <a href="/settings#billing" className="inline-flex h-11 items-center justify-center rounded-xl bg-primary px-4 font-semibold text-primary-foreground">
+        <Link href="/settings#billing" className="inline-flex h-11 items-center justify-center rounded-xl bg-primary px-4 font-semibold text-primary-foreground">
           Start your 7-day free trial
-        </a>
+        </Link>
       )}
     </Card>
   );

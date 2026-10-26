@@ -38,6 +38,13 @@ export default async function TodayPage(props: PageProps<"/business/[id]/today">
     supabase.from("enquiries").select("id", { count: "exact", head: true }).eq("business_id", id).gte("created_at", ws + "T00:00:00Z"),
     computeRoi(supabase, business, profile, monthStart + "T00:00:00Z", nextMonthStart(today) + "T00:00:00Z"),
   ]);
+  const { data: recentPosted } = await supabase
+    .from("posts")
+    .select("posted_at")
+    .eq("business_id", id)
+    .not("posted_at", "is", null)
+    .gte("posted_at", addDays(ws, -7 * 12) + "T00:00:00Z");
+  const streak = postingStreak((recentPosted ?? []).map((p) => p.posted_at as string), ws);
 
   const weekPosts = (postsData ?? []) as Post[];
   const todayPosts = weekPosts.filter((p) => p.publish_date === today && p.status !== "skipped");
@@ -160,6 +167,7 @@ export default async function TodayPage(props: PageProps<"/business/[id]/today">
         {weekPosts.length > 0 && (
           <p className="text-sm text-muted-foreground">
             {postedThisWeek} of {weekPosts.filter((p) => p.status !== "skipped").length} posts done this week.
+            {streak > 1 ? ` You've posted ${streak} weeks in a row.` : ""}
           </p>
         )}
       </section>
@@ -178,4 +186,17 @@ export default async function TodayPage(props: PageProps<"/business/[id]/today">
       {access.canGenerate && <PushPrompt />}
     </div>
   );
+}
+
+// Consecutive Monday-start weeks with at least one post marked posted,
+// counting back from this week (this week counts only once something's posted).
+function postingStreak(postedAt: string[], thisWeek: string) {
+  const weeks = new Set(postedAt.map((iso) => weekStart(new Date(iso))));
+  let streak = 0;
+  let w = weeks.has(thisWeek) ? thisWeek : addDays(thisWeek, -7);
+  while (weeks.has(w)) {
+    streak++;
+    w = addDays(w, -7);
+  }
+  return streak;
 }

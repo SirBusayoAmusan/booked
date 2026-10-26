@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox, Input, Label, Select, Textarea } from "@/components/ui/input";
@@ -67,9 +68,9 @@ export function EnquiryForm({ slug, src, services, businessName }: { slug: strin
       <Checkbox name="consent" required label={`I agree that ${businessName} can contact me about this enquiry.`} />
       <p className="text-xs text-muted-foreground">
         Your details go only to {businessName} so they can reply. They are stored by Booked on their behalf. See our{" "}
-        <a href="/privacy" className="underline">
+        <Link href="/privacy" className="underline">
           privacy notice
-        </a>
+        </Link>
         .
       </p>
       {state === "error" && <p className="text-sm text-destructive">{msg}</p>}

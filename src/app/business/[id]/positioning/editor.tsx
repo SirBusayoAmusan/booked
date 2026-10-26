@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Trash2 } from "lucide-react";
@@ -162,15 +163,15 @@ export function PositioningEditor({
         <Card className="flex flex-col gap-2">
           <CardTitle>Next: your 30-day plan</CardTitle>
           {canGenerate ? (
-            <a className="inline-flex h-11 items-center justify-center rounded-xl bg-primary px-4 font-semibold text-primary-foreground" href={`/business/${businessId}/calendar?generate=1`}>
+            <Link className="inline-flex h-11 items-center justify-center rounded-xl bg-primary px-4 font-semibold text-primary-foreground" href={`/business/${businessId}/calendar?generate=1`}>
               Build my 30-day calendar
-            </a>
+            </Link>
           ) : (
             <>
               <CardDescription>Start your 7-day free trial to build your first calendar and weekly Shoot Day plan.</CardDescription>
-              <a className="inline-flex h-11 items-center justify-center rounded-xl bg-primary px-4 font-semibold text-primary-foreground" href="/settings#billing">
+              <Link className="inline-flex h-11 items-center justify-center rounded-xl bg-primary px-4 font-semibold text-primary-foreground" href="/settings#billing">
                 Start your 7-day free trial
-              </a>
+              </Link>
             </>
           )}
         </Card>

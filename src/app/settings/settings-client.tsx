@@ -81,6 +81,8 @@ export function SettingsClient({ profile, business, subscribed, paused, vapidCon
       {subscribed && (
         <Card className="flex flex-col gap-2">
           <CardTitle>Manage your subscription</CardTitle>
+          {/* API route that redirects to the billing provider, so a plain link. */}
+          {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
           <a href="/api/billing/manage" className="inline-flex h-11 items-center justify-center rounded-xl border border-border px-4 font-semibold">
             Update card, see receipts and invoices
           </a>
@@ -178,6 +180,8 @@ export function SettingsClient({ profile, business, subscribed, paused, vapidCon
             Export enquiries (CSV)
           </a>
         )}
+        {/* File download from an API route. */}
+        {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
         <a href="/api/account/export" className="inline-flex h-11 items-center justify-center rounded-xl border border-border px-4 font-semibold">
           Export everything (JSON)
         </a>

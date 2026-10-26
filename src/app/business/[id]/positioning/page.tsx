@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { Metadata } from "next";
 import { requireBusiness } from "@/lib/auth";
 import { getAccess } from "@/lib/billing/access";
@@ -14,9 +15,9 @@ export default async function PositioningPage(props: PageProps<"/business/[id]/p
       <Card>
         <CardTitle>Not ready yet</CardTitle>
         <CardDescription>Finish onboarding to build your fact sheet and positioning.</CardDescription>
-        <a href="/onboarding" className="mt-3 inline-block font-semibold text-primary underline">
+        <Link href="/onboarding" className="mt-3 inline-block font-semibold text-primary underline">
           Continue onboarding
-        </a>
+        </Link>
       </Card>
     );
   }
