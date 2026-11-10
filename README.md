@@ -41,7 +41,7 @@ Next.js 16 (App Router, TypeScript) · Tailwind CSS 4 with shadcn-style componen
 
 ## Deploy (Vercel)
 
-Import the repo, add the env vars, deploy. `vercel.json` schedules the crons (hourly digest window, 30-minute overdue check, hourly post reminders and month-end check), which needs Vercel Pro. On Hobby, call the `/api/cron/*` routes from any scheduler with `Authorization: Bearer $CRON_SECRET`.
+Import the repo, add the env vars, deploy. `vercel.json` ships with once-a-day crons so it deploys on Vercel Hobby (15:00 UTC suits US owners for the Monday digest). On Vercel Pro, switch to the intended schedules: digest `5 * * * *`, overdue enquiries `*/30 * * * *`, post reminders `2 * * * *`, month-end `17 * * * *`. Or call the `/api/cron/*` routes from any scheduler with `Authorization: Bearer $CRON_SECRET`.
 
 ## Checks
 

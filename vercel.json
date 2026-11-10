@@ -1,9 +1,9 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "crons": [
-    { "path": "/api/cron/weekly-digest", "schedule": "5 * * * *" },
-    { "path": "/api/cron/overdue-enquiries", "schedule": "*/30 * * * *" },
-    { "path": "/api/cron/post-reminders", "schedule": "2 * * * *" },
-    { "path": "/api/cron/month-reminder", "schedule": "17 * * * *" }
+    { "path": "/api/cron/weekly-digest", "schedule": "0 15 * * *" },
+    { "path": "/api/cron/overdue-enquiries", "schedule": "30 16 * * *" },
+    { "path": "/api/cron/post-reminders", "schedule": "0 14 * * *" },
+    { "path": "/api/cron/month-reminder", "schedule": "0 17 * * *" }
   ]
 }

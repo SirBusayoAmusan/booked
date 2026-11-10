@@ -113,3 +113,7 @@ Every assumption and tradeoff made during the build, newest at the bottom of eac
 - **Churn and trial-to-paid are approximations**: Booked stores the current subscription state, not a history, so churn uses `canceled` profiles by last update. A proper funnel needs a billing history table; add one if these numbers start driving decisions.
 - **Posting streak** on Today: consecutive weeks with at least one post marked posted.
 - **Not verified end to end in this build environment**: there was no Supabase instance, Whop sandbox account or Anthropic key available, so the AI calls, auth emails, checkout and webhooks from Whop were not exercised live. Covered instead by: type checks, lint, 135 unit tests (safety rules, webhook signature and replay, access rules, calendar rules, onboarding mapping), RLS tests against Postgres 16, a production build, and a smoke test of public pages and auth, cron and webhook guards.
+
+## Deployment
+
+- **Vercel Hobby only allows daily crons**, and rejects a deployment containing anything more frequent. `vercel.json` therefore uses one run per day per job. Consequences on Hobby: the Monday digest only reaches owners whose local time is 7:00 to 11:59 at 15:00 UTC (US East and Central), overdue-enquiry reminders go out once a day instead of within hours, and post-day reminders only fire for owners who chose the hour that matches. Move to Pro or an external scheduler (hourly digest, 30-minute overdue check) before relying on these.
